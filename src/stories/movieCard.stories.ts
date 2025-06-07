@@ -2,10 +2,11 @@ import type { Meta, StoryObj } from '@storybook/react';
 import MovieCard from "../components/movieCard/index";
 import SampleMovie from "./sampleData";
 
-const meta = {
-    title: 'Home Page/MovieCard',
-    component: MovieCard,
-} satisfies Meta<typeof MovieCard>;
+const meta: Meta<typeof MovieCard> = {
+  title: 'Home Page/MovieCard',
+  component: MovieCard,
+};
+
 export default meta;
 
 type Story = StoryObj<typeof meta>;

@@ -1,10 +1,10 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import FilterMoviesCard from "../components/filterMoviesCard";
 
-const meta = {
+const meta: Meta<typeof FilterMoviesCard> = {
   title: 'Home Page/FilterMoviesCard',
   component: FilterMoviesCard,
-} satisfies Meta<typeof FilterMoviesCard>;
+};
 
 export default meta;
 
