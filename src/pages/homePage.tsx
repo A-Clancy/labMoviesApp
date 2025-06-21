@@ -46,6 +46,14 @@ const MovieListPage: React.FC = () => {
       .then((json) => setMovies(json.results));
   }, []);
 
+    const addToFavourites = (movieId: number) => {
+    const updatedMovies = movies.map((m: BaseMovieProps) =>
+      m.id === movieId ? { ...m, favourite: true } : m
+    );
+    setMovies(updatedMovies);
+  };
+
+
   return (
     <>
       <Grid container sx={styles.root}>
@@ -53,7 +61,7 @@ const MovieListPage: React.FC = () => {
           <Header title={"Home Page"} />
         </Grid>
         <Grid item container spacing={5}>
-          <MovieList movies={displayedMovies} />
+          <MovieList movies={displayedMovies} selectFavourite={addToFavourites} />
         </Grid>
       </Grid>
       <Fab
@@ -77,6 +85,7 @@ const MovieListPage: React.FC = () => {
       </Drawer>
     </>
   );
+  
 };
 
 export default MovieListPage;

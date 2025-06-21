@@ -11,8 +11,8 @@ import CalendarIcon from "@mui/icons-material/CalendarTodayTwoTone";
 import StarRateIcon from "@mui/icons-material/StarRate";
 import Grid from "@mui/material/Grid";
 import IconButton from "@mui/material/IconButton";
-import img from '../../images/film-poster-placeholder.png';
-import { BaseMovieProps } from "../../types/interfaces"; 
+import img from "../../images/film-poster-placeholder.png";
+import { BaseMovieProps } from "../../types/interfaces";
 import { Link } from "react-router-dom";
 
 const styles = {
@@ -23,12 +23,29 @@ const styles = {
   },
 };
 
-const MovieCard: React.FC<BaseMovieProps> = (movie) => {
- 
+interface MovieCardProps {
+  movie: BaseMovieProps;
+  selectFavourite?: (id: number) => void;
+}
 
+const MovieCard: React.FC<MovieCardProps> = ({ movie, selectFavourite }) => {
   return (
     <Card sx={styles.card}>
-      <CardHeader title={movie.title} />
+      <CardHeader
+        title={movie.title}
+        action={
+          movie.favourite ? (
+            <FavoriteIcon color="secondary" />
+          ) : (
+            <IconButton
+              aria-label="add to favorites"
+              onClick={() => selectFavourite?.(movie.id)}
+            >
+              <FavoriteIcon color="disabled" />
+            </IconButton>
+          )
+        }
+      />
       <CardMedia
         sx={styles.media}
         image={
@@ -54,17 +71,14 @@ const MovieCard: React.FC<BaseMovieProps> = (movie) => {
         </Grid>
       </CardContent>
       <CardActions disableSpacing>
-        <IconButton aria-label="add to favorites" >
-          <FavoriteIcon color="primary" fontSize="large" />
-        </IconButton>
-          <Link to={`/movies/${movie.id}`}>
-            <Button variant="outlined" size="medium" color="primary">
-              More Info ...
-            </Button>
-          </Link>
+        <Link to={`/movies/${movie.id}`}>
+          <Button variant="outlined" size="medium" color="primary">
+            More Info ...
+          </Button>
+        </Link>
       </CardActions>
     </Card>
   );
-}
+};
 
 export default MovieCard;
