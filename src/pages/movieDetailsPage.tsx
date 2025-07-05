@@ -1,43 +1,55 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useParams } from "react-router-dom";
-import { MovieDetailsProps, MovieImage } from "../types/interfaces";
+import { useQuery } from "react-query";
+import { getMovie } from "../api/tmdb-api";
+import Spinner from "../components/spinner";
+import TemplateMoviePage from "../components/templateMoviePage";
+import MovieDetails from "../components/movieDetails";
+import { MovieT } from "../types/interfaces";
+
+import Fab from "@mui/material/Fab";
+import NavigationIcon from "@mui/icons-material/Navigation";
+import Drawer from "@mui/material/Drawer";
+import MovieReviews from "../components/movieReviews";
 
 const MoviePage: React.FC = () => {
   const { id } = useParams();
-  const [movie, setMovie] = useState<MovieDetailsProps>();
-  const [images, setImages] = useState<MovieImage[]>([]);
+  const [drawerOpen, setDrawerOpen] = useState(false);
 
-  useEffect(() => {
-    fetch(`https://api.themoviedb.org/3/movie/${id}?api_key=${import.meta.env.VITE_TMDB_KEY}`)
-      .then((res) => res.json())
-      .then((movie) => {
-        // console.log(movie);
-        setMovie(movie);
-      });
-  }, [id]);
+  const { data: movie, error, isLoading, isError } = useQuery<MovieT, Error>(
+    ["movie", { id }],
+    () => getMovie(id)
+  );
 
-  useEffect(() => {
-    fetch(`https://api.themoviedb.org/3/movie/${id}/images?api_key=${import.meta.env.VITE_TMDB_KEY}`)
-      .then((res) => res.json())
-      .then((json) => setImages(json.posters));
-  }, []);
+  if (isLoading) return <Spinner />;
+  if (isError) return <h1>{error?.message}</h1>;
+  if (!movie) return <div>Movie not found</div>;
 
-    return (
-      <div style={{ padding: "2rem" }}>
-        {movie && (
-          <>
-            <h2>{movie.title}</h2>
-            <p>{movie.overview}</p>
-            <img
-              src={`https://image.tmdb.org/t/p/w500/${movie.poster_path}`}
-              alt={movie.title}
-              style={{ maxWidth: "300px" }}
-            />
-          </>
-        )}
-      </div>
-    );
+  return (
+    <>
+      <TemplateMoviePage movie={movie}>
+        <MovieDetails movie={movie} />
+      </TemplateMoviePage>
 
+      <Fab
+        color="secondary"
+        variant="extended"
+        onClick={() => setDrawerOpen(true)}
+        style={{ position: "fixed", bottom: 16, right: 16 }}
+      >
+        <NavigationIcon sx={{ mr: 1 }} />
+        Reviews
+      </Fab>
+
+      <Drawer
+        anchor="top"
+        open={drawerOpen}
+        onClose={() => setDrawerOpen(false)}
+      >
+        <MovieReviews movie={movie} />
+      </Drawer>
+    </>
+  );
 };
 
 export default MoviePage;
