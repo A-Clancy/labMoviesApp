@@ -21,10 +21,10 @@ interface TemplateMoviePageProps {
 }
 
 const TemplateMoviePage: React.FC<TemplateMoviePageProps> = ({ movie, children }) => {
-  const { data, error, isLoading, isError } = useQuery<MovieImage[], Error>(
-    ["images", movie.id],
-    () => getMovieImages(movie.id)
-  );
+  const { data, error, isLoading, isError } = useQuery<
+    { posters: MovieImage[]; backdrops: MovieImage[] },
+    Error
+  >(["images", movie.id], () => getMovieImages(movie.id));
 
   if (isLoading) {
     return <Spinner />;
@@ -34,7 +34,7 @@ const TemplateMoviePage: React.FC<TemplateMoviePageProps> = ({ movie, children }
     return <h1>{(error as Error).message}</h1>;
   }
 
-  const images = data || [];
+  const images = data?.posters || [];
 
   return (
     <>
