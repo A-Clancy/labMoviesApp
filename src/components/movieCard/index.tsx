@@ -1,4 +1,4 @@
-import React from "react";
+import React, { MouseEvent, useContext } from "react";
 import Card from "@mui/material/Card";
 import CardActions from "@mui/material/CardActions";
 import CardContent from "@mui/material/CardContent";
@@ -11,9 +11,11 @@ import CalendarIcon from "@mui/icons-material/CalendarTodayTwoTone";
 import StarRateIcon from "@mui/icons-material/StarRate";
 import Grid from "@mui/material/Grid";
 import IconButton from "@mui/material/IconButton";
+import Avatar from "@mui/material/Avatar";
 import img from "../../images/film-poster-placeholder.png";
 import { BaseMovieProps } from "../../types/interfaces";
 import { Link } from "react-router-dom";
+import { MoviesContext } from "../../contexts/moviesContext"; // NEW
 
 const styles = {
   card: { maxWidth: 345 },
@@ -25,25 +27,32 @@ const styles = {
 
 interface MovieCardProps {
   movie: BaseMovieProps;
-  selectFavourite?: (id: number) => void;
 }
 
-const MovieCard: React.FC<MovieCardProps> = ({ movie, selectFavourite }) => {
+const MovieCard: React.FC<MovieCardProps> = ({ movie }) => {
+  const { favourites, addToFavourites } = useContext(MoviesContext); // NEW
+
+  const isFavourite = favourites.find((id) => id === movie.id) ? true : false; // NEW
+
+  const handleAddToFavourite = (e: MouseEvent<HTMLButtonElement>) => { // NEW
+    e.preventDefault();
+    addToFavourites(movie);
+  };
+
   return (
     <Card sx={styles.card}>
       <CardHeader
-        title={movie.title}
-        action={
-          movie.favourite ? (
-            <FavoriteIcon color="secondary" />
-          ) : (
-            <IconButton
-              aria-label="add to favorites"
-              onClick={() => selectFavourite?.(movie.id)}
-            >
-              <FavoriteIcon color="disabled" />
-            </IconButton>
-          )
+        avatar={ // CHANGED
+          isFavourite ? (
+            <Avatar sx={styles.avatar}>
+              <FavoriteIcon />
+            </Avatar>
+          ) : null
+        }
+        title={
+          <Typography variant="h5" component="p">
+            {movie.title}{" "}
+          </Typography>
         }
       />
       <CardMedia
@@ -71,6 +80,9 @@ const MovieCard: React.FC<MovieCardProps> = ({ movie, selectFavourite }) => {
         </Grid>
       </CardContent>
       <CardActions disableSpacing>
+        <IconButton aria-label="add to favorites" onClick={handleAddToFavourite}>
+          <FavoriteIcon color="disabled" />
+        </IconButton>
         <Link to={`/movies/${movie.id}`}>
           <Button variant="outlined" size="medium" color="primary">
             More Info ...
