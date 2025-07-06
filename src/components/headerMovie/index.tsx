@@ -10,6 +10,8 @@ interface HeaderMovieProps {
 }
 
 const HeaderMovie: React.FC<HeaderMovieProps> = ({ movie }) => {
+  if (!movie) return null;
+
   const favouritesRaw = localStorage.getItem("favourites");
   const favourites: BaseMovieProps[] = favouritesRaw ? JSON.parse(favouritesRaw) : [];
 

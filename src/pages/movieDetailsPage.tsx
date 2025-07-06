@@ -1,55 +1,34 @@
-import React, { useState } from "react";
+import React, {useState, useEffect}  from "react"; // replace existing react import
 import { useParams } from "react-router-dom";
-import { useQuery } from "react-query";
-import { getMovie } from "../api/tmdb-api";
-import Spinner from "../components/spinner";
-import TemplateMoviePage from "../components/templateMoviePage";
 import MovieDetails from "../components/movieDetails";
-import { MovieT } from "../types/interfaces";
+import { MovieDetailsProps} from "../types/interfaces";
+import { getMovie} from "../api/tmdb-api";
+import PageTemplate from "../components/templateMoviePage";
 
-import Fab from "@mui/material/Fab";
-import NavigationIcon from "@mui/icons-material/Navigation";
-import Drawer from "@mui/material/Drawer";
-import MovieReviews from "../components/movieReviews";
 
-const MoviePage: React.FC = () => {
+const MovieDetailsPage: React.FC= () => {
   const { id } = useParams();
-  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [movie, setMovie] = useState<MovieDetailsProps>();
 
-  const { data: movie, error, isLoading, isError } = useQuery<MovieT, Error>(
-    ["movie", { id }],
-    () => getMovie(id)
-  );
-
-  if (isLoading) return <Spinner />;
-  if (isError) return <h1>{error?.message}</h1>;
-  if (!movie) return <div>Movie not found</div>;
+  useEffect(() => {
+    getMovie(id ?? "").then((movie) => {
+      setMovie(movie);
+    });
+  }, [id]);
 
   return (
     <>
-      <TemplateMoviePage movie={movie}>
-        <MovieDetails movie={movie} />
-      </TemplateMoviePage>
-
-      <Fab
-        color="secondary"
-        variant="extended"
-        onClick={() => setDrawerOpen(true)}
-        style={{ position: "fixed", bottom: 16, right: 16 }}
-      >
-        <NavigationIcon sx={{ mr: 1 }} />
-        Reviews
-      </Fab>
-
-      <Drawer
-        anchor="top"
-        open={drawerOpen}
-        onClose={() => setDrawerOpen(false)}
-      >
-        <MovieReviews movie={movie} />
-      </Drawer>
+      {movie ? (
+        <>
+        <PageTemplate movie={movie}>
+          <MovieDetails {...movie} />
+        </PageTemplate>
+      </>
+    ) : (
+      <p>Waiting for movie details</p>
+    )}
     </>
   );
 };
 
-export default MoviePage;
+export default MovieDetailsPage;
