@@ -6,18 +6,20 @@ import MoviePage from "./pages/movieDetailsPage";
 import MovieReviewPage from "./pages/movieReviewPage";
 import SiteHeader from "./components/siteHeader";
 import UpcomingMoviesPage from "./pages/upcomingMoviesPage";
+import FavouriteMoviesPage from "./pages/favoriteMoviesPage";
 
 const App = () => {
   return (
     <BrowserRouter>
       <SiteHeader /> {/* This ensures the header shows on all pages */}
-      <Routes>
-        <Route path="/" element={<HomePage />} />
-        <Route path="/movies/:id" element={<MoviePage />} />
-        <Route path="/reviews/:id" element={<MovieReviewPage />} />
-        <Route path="*" element={<Navigate to="/" />} />
-        <Route path="/movies/upcoming" element={<UpcomingMoviesPage />} />
-      </Routes>
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/movies/favourites" element={<FavouriteMoviesPage />} />
+          <Route path="/movies/upcoming" element={<UpcomingMoviesPage />} />
+          <Route path="/movies/:id" element={<MoviePage />} />
+          <Route path="/reviews/:id" element={<MovieReviewPage />} />
+          <Route path="*" element={<Navigate to="/" />} />
+        </Routes>
     </BrowserRouter>
   );
 };

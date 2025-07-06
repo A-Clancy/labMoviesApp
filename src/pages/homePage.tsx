@@ -1,47 +1,69 @@
 import React, { useState, useEffect } from "react";
-import MovieListPageTemplate from "../components/templateMovieListPage";
+import PageTemplate from '../components/templateMovieListPage';
 import { BaseMovieProps } from "../types/interfaces";
+import { getMovies } from "../api/tmdb-api";
+import useFiltering from "../hooks/useFiltering";
+import MovieFilterUI, {
+  titleFilter,
+  genreFilter,
+} from "../components/movieFilterUI";
 
-const MovieListPage: React.FC = () => {
+const titleFiltering = {
+  name: "title",
+  value: "",
+  condition: titleFilter,
+};
+const genreFiltering = {
+  name: "genre",
+  value: "0",
+  condition: genreFilter,
+};
+
+const HomePage: React.FC = () => {
   const [movies, setMovies] = useState<BaseMovieProps[]>([]);
+  const favourites = movies.filter(m => m.favourite)
+  const { filterValues, setFilterValues, filterFunction } = useFiltering(
+    [titleFiltering, genreFiltering]
+  );
 
+  localStorage.setItem('favourites', JSON.stringify(favourites))
+  // New function
   const addToFavourites = (movieId: number) => {
     const updatedMovies = movies.map((m: BaseMovieProps) =>
       m.id === movieId ? { ...m, favourite: true } : m
     );
     setMovies(updatedMovies);
+  };
 
-    const favourites = updatedMovies.filter((m) => m.favourite);
-    localStorage.setItem("favourites", JSON.stringify(favourites));
+  const changeFilterValues = (type: string, value: string) => {
+    const changedFilter = { name: type, value: value };
+    const updatedFilterSet =
+      type === "title"
+        ? [changedFilter, filterValues[1]]
+        : [filterValues[0], changedFilter];
+    setFilterValues(updatedFilterSet);
   };
 
   useEffect(() => {
-    const storedFavouritesRaw = localStorage.getItem("favourites");
-    const storedFavourites: BaseMovieProps[] = storedFavouritesRaw
-      ? JSON.parse(storedFavouritesRaw)
-      : [];
-
-    fetch(
-      `https://api.themoviedb.org/3/discover/movie?api_key=${import.meta.env.VITE_TMDB_KEY}&language=en-US&include_adult=false&page=1`
-    )
-      .then((res) => res.json())
-      .then((json) => {
-        const moviesWithFavourites = json.results.map((movie: BaseMovieProps) => {
-          const isFavourite = storedFavourites.some((fav) => fav.id === movie.id);
-          return isFavourite ? { ...movie, favourite: true } : movie;
-        });
-
-        setMovies(moviesWithFavourites);
-      });
+    getMovies().then(movies => {
+      setMovies(movies);
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
+  const displayedMovies = filterFunction(movies);
   return (
-    <MovieListPageTemplate
-      movies={movies}
-      title="Home Page"
-      selectFavourite={addToFavourites}
-    />
+    <>
+      <PageTemplate
+        title='Discover Movies'
+        movies={displayedMovies}
+        selectFavourite={addToFavourites}
+      />
+      <MovieFilterUI
+        onFilterValuesChange={changeFilterValues}
+        titleFilter={filterValues[0].value}
+        genreFilter={filterValues[1].value}
+      />
+    </>
   );
 };
-
-export default MovieListPage;
+export default HomePage;
